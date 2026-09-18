@@ -18,33 +18,34 @@ Engineered from network protocol specifications (RFC 791, RFC 793, RFC 826) to d
 
 ```mermaid
 flowchart TD
-    A[Raw PCAP File / Live Socket Stream] --> B[PacketDecoder]
+    A["Raw PCAP File / Network Stream"] --> B["PacketDecoder"]
 
-    subgraph Protocol Decoding [Layer 2 to 7 Dissection]
-        B --> L2[Ethernet II / ARP]
-        B --> L3[IPv4 / ICMP]
-        B --> L4[TCP State / UDP]
-        B --> L7[DNS Protocol & Queries]
+    subgraph Dissection ["Layer 2 to 7 Protocol Dissection"]
+        B --> L2["Ethernet II / ARP"]
+        B --> L3["IPv4 / ICMP"]
+        B --> L4["TCP State / UDP"]
+        B --> L7["DNS Protocol & Queries"]
     end
 
-    Protocol Decoding --> C[FlowTracker Engine]
-    C --> State[Bi-directional TCP State Machine
-SYN_SENT → SYN_RECV → ESTABLISHED → FIN/RST]
+    L2 --> C["FlowTracker Engine"]
+    L3 --> C
+    L4 --> C
+    L7 --> C
 
-    State --> D[Sentinel Detection Pipeline]
+    C --> State["Bi-directional TCP State Machine<br/>SYN_SENT → SYN_RECV → ESTABLISHED → FIN/RST"]
+    State --> D["Sentinel Detection Pipeline"]
 
-    subgraph Detection Modules [Heuristic & Signature Rules]
-        D --> D1[PortScanDetector
-Vertical & Horizontal Sweeps]
-        D --> D2[SynFloodDetector
-Half-Open Velocity & Volumetric Anomaly]
-        D --> D3[ArpSpoofDetector
-Dynamic IP-to-MAC Cache Poisoning]
-        D --> D4[DnsTunnelDetector
-Shannon Entropy & Covert Channel Analysis]
+    subgraph Modules ["Heuristic & Signature Rules"]
+        D --> D1["PortScanDetector<br/>Vertical & Horizontal Sweeps"]
+        D --> D2["SynFloodDetector<br/>Half-Open Velocity Anomaly"]
+        D --> D3["ArpSpoofDetector<br/>Dynamic IP-MAC Poisoning"]
+        D --> D4["DnsTunnelDetector<br/>Shannon Entropy & Covert Channels"]
     end
 
-    Detection Modules --> E[Alert Engine & SIEM JSON Sink]
+    D1 --> E["Alert Engine & SIEM JSON Sink"]
+    D2 --> E
+    D3 --> E
+    D4 --> E
 ```
 
 ---
