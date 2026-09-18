@@ -1,0 +1,2 @@
+# Zero mandatory external dependencies for core packet parsing!
+pytest>=7.4.0
