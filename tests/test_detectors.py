@@ -29,6 +29,20 @@ def test_port_scan_detector():
     assert alerts[0].source_ip == "192.168.1.100"
 
 
+def test_port_scan_below_threshold_does_not_alert():
+    detector = PortScanDetector(threshold_ports=5, window_seconds=10.0)
+    engine = SentinelEngine(detectors=[detector])
+
+    eth = make_ethernet(ethertype=0x0800)
+    alerts = []
+    for port in range(1, 5):
+        tcp = make_tcp(src_port=50000, dst_port=port, flags=0x02)
+        ip = make_ipv4(src_ip=b"\xc0\xa8\x01\x64", dst_ip=b"\xc0\xa8\x01\xc8", proto=6, payload=tcp)
+        alerts.extend(engine.process_raw_packet(eth + ip, timestamp=100.0 + port * 0.1))
+
+    assert alerts == []
+
+
 def test_syn_flood_detector():
     detector = SynFloodDetector(threshold_syn_rate=10, window_seconds=2.0)
     engine = SentinelEngine(detectors=[detector])
